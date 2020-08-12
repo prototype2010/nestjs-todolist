@@ -39,6 +39,8 @@ export class TaskRepository extends Repository<Task> {
 
         await task.save();
 
+        delete task.user;
+
         return task;
     }
 }
