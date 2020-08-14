@@ -8,13 +8,13 @@ import {NotFoundException} from "@nestjs/common";
 export class ProjectRepository extends Repository<Project>{
 
     async getAllProjects(user: User):Promise<Array<Project>> {
-        const query = this.createQueryBuilder('projects');
+            const query = this.createQueryBuilder('projects');
 
-        query.where('project.userId = :userId', {userId: user.id})
+            query.where('project.userId = :userId', {userId: user.id})
 
-        const projects = await query.getMany();
+            const projects = await query.getMany();
 
-        return projects;
+            return projects;
     }
 
     async createProject({name}: CreateProjectDTO, user: User): Promise<Project>  {

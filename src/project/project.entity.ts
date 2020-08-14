@@ -11,6 +11,9 @@ export class Project extends BaseEntity {
     @Column()
     name: string
 
+    @Column()
+    userId: number
+
     @OneToMany(type => Task, task => task.project, {eager: true})
     tasks: Array<Task>
 
