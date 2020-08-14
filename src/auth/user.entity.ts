@@ -3,13 +3,13 @@ import * as bcrypt from 'bcrypt';
 import {Project} from "../project/project.entity";
 
 @Entity()
-@Unique(['username'])
+@Unique(['email'])
 export class User extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
-    username: string;
+    email: string;
 
     @Column()
     salt: string;

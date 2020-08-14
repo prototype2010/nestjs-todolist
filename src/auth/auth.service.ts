@@ -1,10 +1,11 @@
 import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {UserRepository} from "./user.repository";
 import {InjectRepository} from "@nestjs/typeorm";
-import {AuthCredentialsDto} from "./dto/auth-credentials.dto";
 import {JwtService} from "@nestjs/jwt";
 import {JwtPayload} from "./interfaces/jwt-payload.interface";
 import {JwtToken} from "./interfaces/jwt-token.interface";
+import {SignUpDTO} from "./dto/sign-up.dto";
+import {SignInDTO} from "./dto/sign-in.dto";
 
 @Injectable()
 export class AuthService {
@@ -14,11 +15,11 @@ export class AuthService {
         private jwtService: JwtService,
     ) {}
 
-    signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
+    signUp(authCredentialsDto: SignUpDTO): Promise<void> {
         return this.userRepository.signUp(authCredentialsDto);
     }
 
-    async signIn(authCredentialsDto: AuthCredentialsDto): Promise<JwtToken> {
+    async signIn(authCredentialsDto: SignInDTO): Promise<JwtToken> {
 
         const user = await this.userRepository.validatePassword(authCredentialsDto);
 
