@@ -2,6 +2,7 @@ import {TypeOrmModuleOptions} from "@nestjs/typeorm";
 import {Task} from "../tasks/task.entity";
 import {User} from "../auth/user.entity";
 import * as config from 'config';
+import {Project} from "../project/project.entity";
 
 const {type, port, database, synchronize, username, password, host} = config.get('db');
 
@@ -12,6 +13,6 @@ export const typeOrmConfig : TypeOrmModuleOptions = {
     username,
     password,
     database,
-    entities: [Task, User],
+    entities: [Task, User, Project],
     synchronize,
 };

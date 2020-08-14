@@ -42,11 +42,11 @@ export class TaskRepository extends Repository<Task> {
         task.title = title;
         task.description = description;
         task.status = TaskStatus.OPEN;
-        task.user = user;
-
-        await task.save();
-
-        delete task.user;
+        // task.user = user;
+        //
+        // await task.save();
+        //
+        // delete task.user;
 
         return task;
     }

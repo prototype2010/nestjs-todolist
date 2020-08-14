@@ -1,12 +1,15 @@
 import {BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import {TaskStatus} from "./task-status-enum";
-import {User} from "../auth/user.entity";
+import {Project} from "../project/project.entity";
 
 @Entity()
 export class Task extends BaseEntity {
 
     @PrimaryGeneratedColumn()
     id: number
+
+    @Column()
+    projectId: number
 
     @Column()
     title: string
@@ -20,7 +23,7 @@ export class Task extends BaseEntity {
     @Column()
     userId: number
 
-    @ManyToOne(type=> User, user => user.tasks, {eager: false})
-    user: User
+    @ManyToOne(type=> Project, project => project.tasks, {eager: false})
+    project: Project
 }
 
