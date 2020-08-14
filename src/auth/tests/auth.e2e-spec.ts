@@ -140,6 +140,19 @@ describe('Sign-in', () => {
 
     });
 
+    it(`wrong password`, async() => {
+        await request(app.getHttpServer())
+            .post('/auth/signin')
+            .send({email, password: 'definitely_wrong'})
+            .expect(401,   {
+                    statusCode: 401,
+                    message: 'Invalid credentials',
+                    error: 'Unauthorized'
+                }
+            )
+
+    });
+
     it(`invalid email`, async() => {
         await request(app.getHttpServer())
             .post('/auth/signin')
@@ -152,6 +165,19 @@ describe('Sign-in', () => {
                 ],
                 error: 'Bad Request'
             })
+
+    });
+
+    it(`nonexisting email`, async() => {
+        await request(app.getHttpServer())
+            .post('/auth/signin')
+            .send({email: "theBest-email@gmail.com", password})
+            .expect(401,  {
+                    statusCode: 401,
+                    message: 'Invalid credentials',
+                    error: 'Unauthorized'
+                }
+            )
 
     });
 
