@@ -1,53 +1,51 @@
-import {EntityRepository, Repository} from "typeorm";
-import {Task} from "./task.entity";
-import {CreateTaskDTO} from "./dto/CreateTaskDTO";
-import {TaskStatus} from "./task-status-enum";
-import {GetTaskFilterDto} from "./dto/GetTaskFilterDto";
-import {User} from "../auth/user.entity";
+import { EntityRepository, Repository } from 'typeorm';
+import { Task } from './task.entity';
+import { CreateTaskDTO } from './dto/CreateTaskDTO';
+import { TaskStatus } from './task-status-enum';
+import { GetTaskFilterDto } from './dto/GetTaskFilterDto';
+import { User } from '../auth/user.entity';
 
 @EntityRepository(Task)
 export class TaskRepository extends Repository<Task> {
+  async getTasks(
+    { search, status }: GetTaskFilterDto,
+    user: User,
+  ): Promise<Array<Task>> {
+    const query = this.createQueryBuilder('task');
 
-    async getTasks(
-        {search,status}: GetTaskFilterDto,
-        user: User,
-        )
-        : Promise<Array<Task>> {
+    query.where('task.userId = :userId', { userId: user.id });
 
-        const query = this.createQueryBuilder('task');
-
-        query.where('task.userId = :userId', { userId: user.id} );
-
-        if(status) {
-           query.andWhere('task.status = :status', {status});
-        }
-
-        if(search) {
-            query.andWhere('(task.title LIKE :search OR task.description LIKE :search)', {search: `%${search}%`});
-        }
-
-        const tasks = await query.getMany();
-
-        return tasks;
+    if (status) {
+      query.andWhere('task.status = :status', { status });
     }
 
-    async createTask(
-        {description,title} : CreateTaskDTO,
-        user: User)
-        : Promise<Task>
-    {
-
-        const task = new Task();
-
-        task.title = title;
-        task.description = description;
-        task.status = TaskStatus.OPEN;
-        // task.user = user;
-        //
-        // await task.save();
-        //
-        // delete task.user;
-
-        return task;
+    if (search) {
+      query.andWhere(
+        '(task.title LIKE :search OR task.description LIKE :search)',
+        { search: `%${search}%` },
+      );
     }
+
+    const tasks = await query.getMany();
+
+    return tasks;
+  }
+
+  async createTask(
+    { description, title }: CreateTaskDTO,
+    user: User,
+  ): Promise<Task> {
+    const task = new Task();
+
+    task.title = title;
+    task.description = description;
+    task.status = TaskStatus.OPEN;
+    // task.user = user;
+    //
+    // await task.save();
+    //
+    // delete task.user;
+
+    return task;
+  }
 }

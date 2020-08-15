@@ -1,22 +1,36 @@
-import {BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Task} from "../tasks/task.entity";
-import {User} from "../auth/user.entity";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Task } from '../tasks/task.entity';
+import { User } from '../auth/user.entity';
 
 @Entity()
 export class Project extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @PrimaryGeneratedColumn()
-    id: number
+  @Column()
+  name: string;
 
-    @Column()
-    name: string
+  @Column()
+  userId: number;
 
-    @Column()
-    userId: number
+  @OneToMany(
+    type => Task,
+    task => task.project,
+    { eager: true },
+  )
+  tasks: Array<Task>;
 
-    @OneToMany(type => Task, task => task.project, {eager: true})
-    tasks: Array<Task>
-
-    @ManyToOne(type => User, user => user.projects, {eager: false})
-    user: User
+  @ManyToOne(
+    type => User,
+    user => user.projects,
+    { eager: false },
+  )
+  user: User;
 }

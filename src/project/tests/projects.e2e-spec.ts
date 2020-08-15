@@ -1,507 +1,492 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {typeOrmConfig} from "../../config/typeorm.config";
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { typeOrmConfig } from '../../config/typeorm.config';
 import * as faker from 'faker';
-import {AuthModule} from "../../auth/auth.module";
-import {ProjectsModule} from "../projects.module";
+import { AuthModule } from '../../auth/auth.module';
+import { ProjectsModule } from '../projects.module';
 
 describe('Create project', () => {
-    let app: INestApplication;
-    let token;
-    let projectName;
+  let app: INestApplication;
+  let token;
+  let projectName;
 
-    beforeAll(async () => {
-        const moduleRef = await Test.createTestingModule({
-            imports: [
-                TypeOrmModule.forRoot(typeOrmConfig),
-                AuthModule,
-                ProjectsModule
-            ],
-        })
-            .compile();
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        TypeOrmModule.forRoot(typeOrmConfig),
+        AuthModule,
+        ProjectsModule,
+      ],
+    }).compile();
 
-        app = moduleRef.createNestApplication();
-        await app.init();
-    });
+    app = moduleRef.createNestApplication();
+    await app.init();
+  });
 
-    beforeEach(async ()=>{
+  beforeEach(async () => {
+    projectName = faker.company.companyName();
+    const email = faker.internet.email();
+    const password = faker.internet.password();
 
-        projectName = faker.company.companyName();
-        const email = faker.internet.email();
-        const password = faker.internet.password();
+    await request(app.getHttpServer())
+      .post('/auth/signup')
+      .send({ email, password, repeatPassword: password });
 
-        await request(app.getHttpServer())
-            .post('/auth/signup')
-            .send({email, password, repeatPassword: password})
+    const response = await request(app.getHttpServer())
+      .post('/auth/signin')
+      .send({ email, password });
 
-        const response = await request(app.getHttpServer())
-            .post('/auth/signin')
-            .send({email, password})
+    token = response.body.token;
+  });
 
-        token = response.body.token;
-    });
+  it(`Successful create project`, async () => {
+    const company = await request(app.getHttpServer())
+      .post('/projects')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: projectName })
+      .expect(201);
 
-    it(`Successful create project`, async () => {
-        const company = await request(app.getHttpServer())
-            .post('/projects')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ name: projectName})
-            .expect(201);
+    expect(company.body.name).toBe(projectName);
+    expect(company.body.id).toBeTruthy();
+  });
 
-        expect(company.body.name).toBe(projectName);
-        expect(company.body.id).toBeTruthy();
-    });
+  it(`Creating unathorized`, async () => {
+    await request(app.getHttpServer())
+      .post('/projects')
+      .set('Authorization', `Bearer XXXXXXX`)
+      .send({ name: projectName })
+      .expect(401, { statusCode: 401, message: 'Unauthorized' });
+  });
 
-    it(`Creating unathorized`, async () => {
-        await request(app.getHttpServer())
-            .post('/projects')
-            .set('Authorization', `Bearer XXXXXXX`)
-            .send({ name: projectName})
-            .expect(401, {statusCode:401,message:"Unauthorized"});
-    });
+  it(`Empty company name`, async () => {
+    await request(app.getHttpServer())
+      .post('/projects')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: '' })
+      .expect(400, {
+        statusCode: 400,
+        message: [
+          'name must be longer than or equal to 4 characters',
+          'name should not be empty',
+        ],
+        error: 'Bad Request',
+      });
+  });
 
-    it(`Empty company name`, async () => {
-        await request(app.getHttpServer())
-            .post('/projects')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ name: ''})
-            .expect(400, {
-                "statusCode":400,
-                "message":["name must be longer than or equal to 4 characters","name should not be empty"],
-                "error":"Bad Request"
-            });
-    });
-
-    afterAll(async () => {
-        await app.close();
-    });
+  afterAll(async () => {
+    await app.close();
+  });
 });
 
 describe('Update project', () => {
-    let app: INestApplication;
-    let token;
-    let projectName;
-    let projectId;
+  let app: INestApplication;
+  let token;
+  let projectName;
+  let projectId;
 
-    beforeAll(async () => {
-        const moduleRef = await Test.createTestingModule({
-            imports: [
-                TypeOrmModule.forRoot(typeOrmConfig),
-                AuthModule,
-                ProjectsModule
-            ],
-        })
-            .compile();
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        TypeOrmModule.forRoot(typeOrmConfig),
+        AuthModule,
+        ProjectsModule,
+      ],
+    }).compile();
 
-        app = moduleRef.createNestApplication();
-        await app.init();
-    });
+    app = moduleRef.createNestApplication();
+    await app.init();
+  });
 
-    beforeEach(async ()=>{
+  beforeEach(async () => {
+    projectName = faker.company.companyName();
+    const email = faker.internet.email();
+    const password = faker.internet.password();
 
-        projectName = faker.company.companyName();
-        const email = faker.internet.email();
-        const password = faker.internet.password();
+    await request(app.getHttpServer())
+      .post('/auth/signup')
+      .send({ email, password, repeatPassword: password });
 
-        await request(app.getHttpServer())
-            .post('/auth/signup')
-            .send({email, password, repeatPassword: password})
+    const response = await request(app.getHttpServer())
+      .post('/auth/signin')
+      .send({ email, password });
 
-        const response = await request(app.getHttpServer())
-            .post('/auth/signin')
-            .send({email, password})
+    token = response.body.token;
 
-        token = response.body.token;
+    const project = await request(app.getHttpServer())
+      .post('/projects')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: projectName })
+      .expect(201);
 
-        const project = await request(app.getHttpServer())
-            .post('/projects')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ name: projectName})
-            .expect(201);
+    projectId = project.body.id;
+  });
 
-        projectId = project.body.id;
-    });
+  it(`Successfully update project`, async () => {
+    const newProjectName = faker.company.companyName();
 
-    it(`Successfully update project`, async () => {
-        const newProjectName = faker.company.companyName();
+    const project = await request(app.getHttpServer())
+      .put(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: newProjectName })
+      .expect(200);
 
-        const project = await request(app.getHttpServer())
-            .put(`/projects/${projectId}`)
-            .set('Authorization', `Bearer ${token}`)
-            .send({ name: newProjectName})
-            .expect(200);
+    expect(project.body.name).toBe(newProjectName);
+    expect(project.body.id).toBe(projectId);
+  });
 
-        expect(project.body.name).toBe(newProjectName);
-        expect(project.body.id).toBe(projectId);
-    });
+  it(`Update project with empty name`, async () => {
+    await request(app.getHttpServer())
+      .put(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: '' })
+      .expect(400, {
+        statusCode: 400,
+        message: [
+          'name must be longer than or equal to 4 characters',
+          'name should not be empty',
+        ],
+        error: 'Bad Request',
+      });
+  });
 
-    it(`Update project with empty name`, async () => {
+  it(`Update project with very long name`, async () => {
+    await request(app.getHttpServer())
+      .put(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: projectName.repeat(20) })
+      .expect(400, {
+        statusCode: 400,
+        message: ['name must be shorter than or equal to 50 characters'],
+        error: 'Bad Request',
+      });
+  });
 
-         await request(app.getHttpServer())
-            .put(`/projects/${projectId}`)
-            .set('Authorization', `Bearer ${token}`)
-            .send({ name: ''})
-            .expect(400,  {
-                    statusCode: 400,
-                    message: [
-                        'name must be longer than or equal to 4 characters',
-                        'name should not be empty'
-                    ],
-                    error: 'Bad Request'
-                }
-            );
-    });
+  it(`Update other guy project`, async () => {
+    ////////// OTHER GUY PROJECT ///////////////
+    const projectName2 = faker.company.companyName();
+    const email2 = faker.internet.email();
+    const password2 = faker.internet.password();
 
-    it(`Update project with very long name`, async () => {
+    await request(app.getHttpServer())
+      .post('/auth/signup')
+      .send({ email: email2, password: password2, repeatPassword: password2 });
 
-         await request(app.getHttpServer())
-            .put(`/projects/${projectId}`)
-            .set('Authorization', `Bearer ${token}`)
-            .send({ name: projectName.repeat(20)})
-            .expect(400,  {
-                    statusCode: 400,
-                    message: [ 'name must be shorter than or equal to 50 characters' ],
-                    error: 'Bad Request'
-                }
-            );
-    });
+    const response = await request(app.getHttpServer())
+      .post('/auth/signin')
+      .send({ email: email2, password: password2 });
 
-    it(`Update other guy project`, async () => {
+    const token2 = response.body.token;
 
-        ////////// OTHER GUY PROJECT ///////////////
-        const projectName2 = faker.company.companyName();
-        const email2 = faker.internet.email();
-        const password2 = faker.internet.password();
+    const otherProject = await request(app.getHttpServer())
+      .post('/projects')
+      .set('Authorization', `Bearer ${token2}`)
+      .send({ name: projectName2 })
+      .expect(201);
 
-        await request(app.getHttpServer())
-            .post('/auth/signup')
-            .send({email: email2, password: password2, repeatPassword: password2})
+    ////////////////////////////////////////////
 
-        const response = await request(app.getHttpServer())
-            .post('/auth/signin')
-            .send({email: email2, password: password2})
+    await request(app.getHttpServer())
+      .put(`/projects/${otherProject.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Another name' })
+      .expect(404, {
+        statusCode: 404,
+        message: 'Project not found',
+        error: 'Not Found',
+      });
+  });
 
-        const token2 = response.body.token;
-
-        const otherProject = await request(app.getHttpServer())
-            .post('/projects')
-            .set('Authorization', `Bearer ${token2}`)
-            .send({ name: projectName2})
-            .expect(201);
-
-        ////////////////////////////////////////////
-
-         await request(app.getHttpServer())
-            .put(`/projects/${otherProject.body.id}`)
-            .set('Authorization', `Bearer ${token}`)
-            .send({ name: 'Another name'})
-            .expect(404,   {
-                statusCode: 404,
-                message: 'Project not found',
-                error: 'Not Found'
-            });
-    });
-
-
-    afterAll(async () => {
-        await app.close();
-    });
+  afterAll(async () => {
+    await app.close();
+  });
 });
 
 describe('Delete project', () => {
-    let app: INestApplication;
-    let token;
-    let projectName;
-    let projectId;
+  let app: INestApplication;
+  let token;
+  let projectName;
+  let projectId;
 
-    beforeAll(async () => {
-        const moduleRef = await Test.createTestingModule({
-            imports: [
-                TypeOrmModule.forRoot(typeOrmConfig),
-                AuthModule,
-                ProjectsModule
-            ],
-        })
-            .compile();
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        TypeOrmModule.forRoot(typeOrmConfig),
+        AuthModule,
+        ProjectsModule,
+      ],
+    }).compile();
 
-        app = moduleRef.createNestApplication();
-        await app.init();
-    });
+    app = moduleRef.createNestApplication();
+    await app.init();
+  });
 
-    beforeEach(async ()=>{
+  beforeEach(async () => {
+    projectName = faker.company.companyName();
+    const email = faker.internet.email();
+    const password = faker.internet.password();
 
-        projectName = faker.company.companyName();
-        const email = faker.internet.email();
-        const password = faker.internet.password();
+    await request(app.getHttpServer())
+      .post('/auth/signup')
+      .send({ email, password, repeatPassword: password });
 
-        await request(app.getHttpServer())
-            .post('/auth/signup')
-            .send({email, password, repeatPassword: password})
+    const response = await request(app.getHttpServer())
+      .post('/auth/signin')
+      .send({ email, password });
 
-        const response = await request(app.getHttpServer())
-            .post('/auth/signin')
-            .send({email, password})
+    token = response.body.token;
 
-        token = response.body.token;
+    const project = await request(app.getHttpServer())
+      .post('/projects')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: projectName })
+      .expect(201);
 
-        const project = await request(app.getHttpServer())
-            .post('/projects')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ name: projectName})
-            .expect(201);
+    projectId = project.body.id;
+  });
 
-        projectId = project.body.id;
-    });
+  it(`Delete project`, async () => {
+    await request(app.getHttpServer())
+      .delete(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+  });
 
-    it(`Delete project`, async () => {
-        await request(app.getHttpServer())
-            .delete(`/projects/${projectId}`)
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200);
-    });
+  it(`Deleted project cannot be gotten`, async () => {
+    await request(app.getHttpServer())
+      .delete(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
 
-    it(`Deleted project cannot be gotten`, async () => {
-        await request(app.getHttpServer())
-            .delete(`/projects/${projectId}`)
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200);
+    await request(app.getHttpServer())
+      .get(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(404, {
+        statusCode: 404,
+        message: 'Project not found',
+        error: 'Not Found',
+      });
+  });
 
-        await request(app.getHttpServer())
-            .get(`/projects/${projectId}`)
-            .set('Authorization', `Bearer ${token}`)
-            .expect(404, {
-                statusCode: 404,
-                message: 'Project not found',
-                error: 'Not Found'
-            });
-    });
+  it(`Deleted project cannot be found among all user projects`, async () => {
+    await request(app.getHttpServer())
+      .delete(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
 
-    it(`Deleted project cannot be found among all user projects`, async () => {
-        await request(app.getHttpServer())
-            .delete(`/projects/${projectId}`)
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200);
+    await request(app.getHttpServer())
+      .get(`/projects`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200, []);
+  });
 
-        await request(app.getHttpServer())
-            .get(`/projects`)
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200, []);
-    });
+  it(`Delete other guy project should not be successful`, async () => {
+    ///////////// OTHER GUY /////////////////////
+    const email2 = faker.internet.email();
+    const password2 = faker.internet.password();
 
-    it(`Delete other guy project should not be successful`, async () => {
-        ///////////// OTHER GUY /////////////////////
-        const email2 = faker.internet.email();
-        const password2 = faker.internet.password();
+    await request(app.getHttpServer())
+      .post('/auth/signup')
+      .send({
+        email: email2,
+        password: password2,
+        repeatPassword: password2,
+      });
 
-        await request(app.getHttpServer())
-            .post('/auth/signup')
-            .send({
-                email: email2,
-                password: password2,
-                repeatPassword: password2
-            });
+    const response = await request(app.getHttpServer())
+      .post('/auth/signin')
+      .send({ email: email2, password: password2 });
 
-        const response = await request(app.getHttpServer())
-            .post('/auth/signin')
-            .send({email: email2, password: password2});
+    const otherGuyToken = response.body.token;
+    /////////////////////////////////////////////
 
-        const otherGuyToken = response.body.token;
-        /////////////////////////////////////////////
+    await request(app.getHttpServer())
+      .delete(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${otherGuyToken}`)
+      .expect(404, {
+        statusCode: 404,
+        message: 'Project not found',
+        error: 'Not Found',
+      });
+  });
 
-        await request(app.getHttpServer())
-            .delete(`/projects/${projectId}`)
-            .set('Authorization', `Bearer ${otherGuyToken}`)
-            .expect(404, {
-                statusCode: 404,
-                message: 'Project not found',
-                error: 'Not Found'
-            });
-    });
-
-    afterAll(async () => {
-        await app.close();
-    });
+  afterAll(async () => {
+    await app.close();
+  });
 });
 
 describe('Get project by id', () => {
-    let app: INestApplication;
-    let token;
-    let projectName;
-    let projectId;
+  let app: INestApplication;
+  let token;
+  let projectName;
+  let projectId;
 
-    beforeAll(async () => {
-        const moduleRef = await Test.createTestingModule({
-            imports: [
-                TypeOrmModule.forRoot(typeOrmConfig),
-                AuthModule,
-                ProjectsModule
-            ],
-        })
-            .compile();
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        TypeOrmModule.forRoot(typeOrmConfig),
+        AuthModule,
+        ProjectsModule,
+      ],
+    }).compile();
 
-        app = moduleRef.createNestApplication();
-        await app.init();
-    });
+    app = moduleRef.createNestApplication();
+    await app.init();
+  });
 
-    beforeEach(async ()=>{
+  beforeEach(async () => {
+    projectName = faker.company.companyName();
+    const email = faker.internet.email();
+    const password = faker.internet.password();
 
-        projectName = faker.company.companyName();
-        const email = faker.internet.email();
-        const password = faker.internet.password();
+    await request(app.getHttpServer())
+      .post('/auth/signup')
+      .send({ email, password, repeatPassword: password });
 
-        await request(app.getHttpServer())
-            .post('/auth/signup')
-            .send({email, password, repeatPassword: password})
+    const response = await request(app.getHttpServer())
+      .post('/auth/signin')
+      .send({ email, password });
 
-        const response = await request(app.getHttpServer())
-            .post('/auth/signin')
-            .send({email, password})
+    token = response.body.token;
 
-        token = response.body.token;
+    const company = await request(app.getHttpServer())
+      .post('/projects')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: projectName });
 
-        const company = await request(app.getHttpServer())
-            .post('/projects')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ name: projectName})
+    projectName = company.body.name;
+    projectId = company.body.id;
+  });
 
-        projectName = company.body.name;
-        projectId = company.body.id;
-    });
+  it(`Get project by id`, async () => {
+    const company = await request(app.getHttpServer())
+      .get(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send()
+      .expect(200);
 
-    it(`Get project by id`, async () => {
-        const company = await request(app.getHttpServer())
-            .get(`/projects/${projectId}`)
-            .set('Authorization', `Bearer ${token}`)
-            .send()
-            .expect(200);
+    expect(company.body.name).toBe(projectName);
+    expect(company.body.id).toBe(projectId);
+    expect(company.body.userId).toBeTruthy();
+    expect(company.body.tasks).toStrictEqual([]);
+  });
 
-        expect(company.body.name).toBe(projectName);
-        expect(company.body.id).toBe(projectId);
-        expect(company.body.userId).toBeTruthy();
-        expect(company.body.tasks).toStrictEqual([]);
-    });
+  it(`Get wrong project by id`, async () => {
+    await request(app.getHttpServer())
+      .get(`/projects/999999999`)
+      .set('Authorization', `Bearer ${token}`)
+      .send()
+      .expect(404, {
+        statusCode: 404,
+        message: 'Project not found',
+        error: 'Not Found',
+      });
+  });
 
+  it(`Get other guy project by id`, async () => {
+    // CREATING OTHER GUY ////////////
+    const email2 = faker.internet.email();
+    const password2 = faker.internet.password();
 
-    it(`Get wrong project by id`, async () => {
-        await request(app.getHttpServer())
-            .get(`/projects/999999999`)
-            .set('Authorization', `Bearer ${token}`)
-            .send()
-            .expect(404, {
-                statusCode: 404,
-                message: 'Project not found',
-                error: 'Not Found'
-            });
-    });
+    await request(app.getHttpServer())
+      .post('/auth/signup')
+      .send({ email: email2, password: password2, repeatPassword: password2 });
 
-    it(`Get other guy project by id`, async () => {
-        // CREATING OTHER GUY ////////////
-        const email2 = faker.internet.email();
-        const password2 = faker.internet.password();
+    const response = await request(app.getHttpServer())
+      .post('/auth/signin')
+      .send({ email: email2, password: password2 });
+    /////////////////////////////////////
 
-        await request(app.getHttpServer())
-            .post('/auth/signup')
-            .send({email: email2, password: password2, repeatPassword: password2})
+    await request(app.getHttpServer())
+      .get(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${response.body.token}`)
+      .send()
+      .expect(404, {
+        statusCode: 404,
+        message: 'Project not found',
+        error: 'Not Found',
+      });
+  });
 
-        const response = await request(app.getHttpServer())
-            .post('/auth/signin')
-            .send({email: email2, password: password2});
-        /////////////////////////////////////
-
-        await request(app.getHttpServer())
-            .get(`/projects/${projectId}`)
-            .set('Authorization', `Bearer ${response.body.token}`)
-            .send()
-            .expect(404, {
-                "statusCode":404,
-                "message":"Project not found",
-                "error":"Not Found"
-            });
-    });
-
-    afterAll(async () => {
-        await app.close();
-    });
+  afterAll(async () => {
+    await app.close();
+  });
 });
 
 describe('Get all projects', () => {
-    let app: INestApplication;
-    let token;
-    let projectName;
-    let projectId;
+  let app: INestApplication;
+  let token;
+  let projectName;
+  let projectId;
 
-    beforeAll(async () => {
-        const moduleRef = await Test.createTestingModule({
-            imports: [
-                TypeOrmModule.forRoot(typeOrmConfig),
-                AuthModule,
-                ProjectsModule
-            ],
-        })
-            .compile();
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        TypeOrmModule.forRoot(typeOrmConfig),
+        AuthModule,
+        ProjectsModule,
+      ],
+    }).compile();
 
-        app = moduleRef.createNestApplication();
-        await app.init();
-    });
+    app = moduleRef.createNestApplication();
+    await app.init();
+  });
 
-    beforeEach(async ()=>{
+  beforeEach(async () => {
+    projectName = faker.company.companyName();
+    const email = faker.internet.email();
+    const password = faker.internet.password();
 
-        projectName = faker.company.companyName();
-        const email = faker.internet.email();
-        const password = faker.internet.password();
+    await request(app.getHttpServer())
+      .post('/auth/signup')
+      .send({ email, password, repeatPassword: password });
 
-        await request(app.getHttpServer())
-            .post('/auth/signup')
-            .send({email, password, repeatPassword: password})
+    const response = await request(app.getHttpServer())
+      .post('/auth/signin')
+      .send({ email, password });
 
-        const response = await request(app.getHttpServer())
-            .post('/auth/signin')
-            .send({email, password})
+    token = response.body.token;
 
-        token = response.body.token;
+    const company = await request(app.getHttpServer())
+      .post('/projects')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: projectName });
 
-        const company = await request(app.getHttpServer())
-            .post('/projects')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ name: projectName})
+    projectName = company.body.name;
+    projectId = company.body.id;
+  });
 
-        projectName = company.body.name;
-        projectId = company.body.id;
-    });
+  it(`Get all projects`, async () => {
+    const companies = await request(app.getHttpServer())
+      .get(`/projects`)
+      .set('Authorization', `Bearer ${token}`)
+      .send()
+      .expect(200);
 
-    it(`Get all projects`, async () => {
-        const companies = await request(app.getHttpServer())
-            .get(`/projects`)
-            .set('Authorization', `Bearer ${token}`)
-            .send()
-            .expect(200);
+    expect(companies.body.length).toBe(1);
+    expect(companies.body[0].id).toBe(projectId);
+    expect(companies.body[0].name).toBe(projectName);
+  });
 
-        expect(companies.body.length).toBe(1);
-        expect(companies.body[0].id).toBe(projectId);
-        expect(companies.body[0].name).toBe(projectName);
-    });
+  it(`Get all projects if they more than 1`, async () => {
+    /// SECOND COMPANY ///////
+    await request(app.getHttpServer())
+      .post('/projects')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: faker.company.companyName() });
+    //////////////////////////
 
-    it(`Get all projects if they more than 1`, async () => {
+    const companies = await request(app.getHttpServer())
+      .get(`/projects`)
+      .set('Authorization', `Bearer ${token}`)
+      .send()
+      .expect(200);
 
-        /// SECOND COMPANY ///////
-        await request(app.getHttpServer())
-            .post('/projects')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ name: faker.company.companyName()})
-        //////////////////////////
+    expect(companies.body.length).toBe(2);
+  });
 
-        const companies = await request(app.getHttpServer())
-            .get(`/projects`)
-            .set('Authorization', `Bearer ${token}`)
-            .send()
-            .expect(200);
-
-        expect(companies.body.length).toBe(2);
-    });
-
-    afterAll(async () => {
-        await app.close();
-    });
+  afterAll(async () => {
+    await app.close();
+  });
 });

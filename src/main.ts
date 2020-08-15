@@ -5,7 +5,7 @@ import * as config from 'config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const {port} = config.get('server');
+  const { port } = config.get('server');
 
   await app.listen(port);
 }

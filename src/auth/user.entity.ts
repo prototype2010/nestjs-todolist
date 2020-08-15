@@ -1,30 +1,39 @@
-import {BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique} from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import {Project} from "../project/project.entity";
+import { Project } from '../project/project.entity';
 
 @Entity()
 @Unique(['email'])
 export class User extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    email: string;
+  @Column()
+  email: string;
 
-    @Column()
-    salt: string;
+  @Column()
+  salt: string;
 
-    @Column()
-    password: string;
+  @Column()
+  password: string;
 
-    @OneToMany(type => Project, project => project.user, {eager: true})
-    projects: Array<Project>;
+  @OneToMany(
+    type => Project,
+    project => project.user,
+    { eager: true },
+  )
+  projects: Array<Project>;
 
+  async isPasswordValid(password: string) {
+    const hash = await bcrypt.hash(password, this.salt);
 
-
-    async isPasswordValid(password: string) {
-        const hash = await bcrypt.hash(password, this.salt);
-
-        return hash === this.password;
-    }
+    return hash === this.password;
+  }
 }
