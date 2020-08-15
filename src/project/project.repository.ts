@@ -8,7 +8,7 @@ import {NotFoundException} from "@nestjs/common";
 export class ProjectRepository extends Repository<Project>{
 
     async getAllProjects(user: User):Promise<Array<Project>> {
-            const query = this.createQueryBuilder('projects');
+            const query = this.createQueryBuilder('project');
 
             query.where('project.userId = :userId', {userId: user.id})
 
