@@ -5,7 +5,7 @@ import {
     Get,
     Param,
     ParseIntPipe,
-    Post,
+    Post, Put,
     UseGuards,
     UsePipes,
     ValidationPipe
@@ -29,7 +29,7 @@ export class ProjectsController {
         return this.projectsService.createProject(createProjectDTO,user);
     }
 
-    @Post('/:id')
+    @Put('/:id')
     @UsePipes(ValidationPipe)
     updateProject(@Param('id', ParseIntPipe) projectId: number,
                   @Body() createProjectDTO: CreateProjectDTO,

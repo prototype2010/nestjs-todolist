@@ -83,6 +83,7 @@ describe('Update project', () => {
     let app: INestApplication;
     let token;
     let projectName;
+    let projectId;
 
     beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -113,38 +114,96 @@ describe('Update project', () => {
             .send({email, password})
 
         token = response.body.token;
-    });
 
-    it(`Successful create project`, async () => {
-        const company = await request(app.getHttpServer())
+        const project = await request(app.getHttpServer())
             .post('/projects')
             .set('Authorization', `Bearer ${token}`)
             .send({ name: projectName})
             .expect(201);
 
-        expect(company.body.name).toBe(projectName);
-        expect(company.body.id).toBeTruthy();
+        projectId = project.body.id;
     });
 
-    it(`Creating unathorized`, async () => {
-        await request(app.getHttpServer())
-            .post('/projects')
-            .set('Authorization', `Bearer XXXXXXX`)
-            .send({ name: projectName})
-            .expect(401, {statusCode:401,message:"Unauthorized"});
+    it(`Successfully update project`, async () => {
+        const newProjectName = faker.company.companyName();
+
+        const project = await request(app.getHttpServer())
+            .put(`/projects/${projectId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ name: newProjectName})
+            .expect(200);
+
+        expect(project.body.name).toBe(newProjectName);
+        expect(project.body.id).toBe(projectId);
     });
 
-    it(`Empty company name`, async () => {
-        await request(app.getHttpServer())
-            .post('/projects')
+    it(`Update project with empty name`, async () => {
+
+         await request(app.getHttpServer())
+            .put(`/projects/${projectId}`)
             .set('Authorization', `Bearer ${token}`)
             .send({ name: ''})
-            .expect(400, {
-                "statusCode":400,
-                "message":["name must be longer than or equal to 4 characters","name should not be empty"],
-                "error":"Bad Request"
+            .expect(400,  {
+                    statusCode: 400,
+                    message: [
+                        'name must be longer than or equal to 4 characters',
+                        'name should not be empty'
+                    ],
+                    error: 'Bad Request'
+                }
+            );
+    });
+
+    it(`Update project with very long name`, async () => {
+
+         await request(app.getHttpServer())
+            .put(`/projects/${projectId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ name: projectName.repeat(20)})
+            .expect(400,  {
+                    statusCode: 400,
+                    message: [ 'name must be shorter than or equal to 50 characters' ],
+                    error: 'Bad Request'
+                }
+            );
+    });
+
+    it(`Update other guy project`, async () => {
+
+        ////////// OTHER GUY PROJECT ///////////////
+        const projectName2 = faker.company.companyName();
+        const email2 = faker.internet.email();
+        const password2 = faker.internet.password();
+
+        await request(app.getHttpServer())
+            .post('/auth/signup')
+            .send({email: email2, password: password2, repeatPassword: password2})
+
+        const response = await request(app.getHttpServer())
+            .post('/auth/signin')
+            .send({email: email2, password: password2})
+
+        const token2 = response.body.token;
+
+        const otherProject = await request(app.getHttpServer())
+            .post('/projects')
+            .set('Authorization', `Bearer ${token2}`)
+            .send({ name: projectName2})
+            .expect(201);
+
+        ////////////////////////////////////////////
+
+         await request(app.getHttpServer())
+            .put(`/projects/${otherProject.body.id}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ name: 'Another name'})
+            .expect(404,   {
+                statusCode: 404,
+                message: 'Project not found',
+                error: 'Not Found'
             });
     });
+
 
     afterAll(async () => {
         await app.close();
