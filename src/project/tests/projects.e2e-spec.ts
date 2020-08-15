@@ -6,6 +6,7 @@ import {typeOrmConfig} from "../../config/typeorm.config";
 import * as faker from 'faker';
 import {AuthModule} from "../../auth/auth.module";
 import {ProjectsModule} from "../projects.module";
+import {prependListener} from "cluster";
 
 describe('Create project', () => {
     let app: INestApplication;
@@ -204,6 +205,121 @@ describe('Update project', () => {
             });
     });
 
+
+    afterAll(async () => {
+        await app.close();
+    });
+});
+
+describe('Delete project', () => {
+    let app: INestApplication;
+    let token;
+    let projectName;
+    let projectId;
+
+    beforeAll(async () => {
+        const moduleRef = await Test.createTestingModule({
+            imports: [
+                TypeOrmModule.forRoot(typeOrmConfig),
+                AuthModule,
+                ProjectsModule
+            ],
+        })
+            .compile();
+
+        app = moduleRef.createNestApplication();
+        await app.init();
+    });
+
+    beforeEach(async ()=>{
+
+        projectName = faker.company.companyName();
+        const email = faker.internet.email();
+        const password = faker.internet.password();
+
+        await request(app.getHttpServer())
+            .post('/auth/signup')
+            .send({email, password, repeatPassword: password})
+
+        const response = await request(app.getHttpServer())
+            .post('/auth/signin')
+            .send({email, password})
+
+        token = response.body.token;
+
+        const project = await request(app.getHttpServer())
+            .post('/projects')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ name: projectName})
+            .expect(201);
+
+        projectId = project.body.id;
+    });
+
+    it(`Delete project`, async () => {
+        await request(app.getHttpServer())
+            .delete(`/projects/${projectId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .expect(200);
+    });
+
+    it(`Deleted project cannot be gotten`, async () => {
+        await request(app.getHttpServer())
+            .delete(`/projects/${projectId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .expect(200);
+
+        await request(app.getHttpServer())
+            .get(`/projects/${projectId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .expect(404, {
+                statusCode: 404,
+                message: 'Project not found',
+                error: 'Not Found'
+            });
+    });
+
+    it(`Deleted project cannot be found among all user projects`, async () => {
+        await request(app.getHttpServer())
+            .delete(`/projects/${projectId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .expect(200);
+
+        await request(app.getHttpServer())
+            .get(`/projects`)
+            .set('Authorization', `Bearer ${token}`)
+            .expect(200, []);
+    });
+
+    it(`Delete other guy project should not be successful`, async () => {
+        ///////////// OTHER GUY /////////////////////
+        const email2 = faker.internet.email();
+        const password2 = faker.internet.password();
+
+        await request(app.getHttpServer())
+            .post('/auth/signup')
+            .send({
+                email: email2,
+                password: password2,
+                repeatPassword: password2
+            });
+
+        const response = await request(app.getHttpServer())
+            .post('/auth/signin')
+            .send({email: email2, password: password2});
+
+        const otherGuyToken = response.body.token;
+        /////////////////////////////////////////////
+
+        await request(app.getHttpServer())
+            .delete(`/projects/${projectId}`)
+            .set('Authorization', `Bearer ${otherGuyToken}`)
+            .expect(404, {
+                statusCode: 404,
+                message: 'Project not found',
+                error: 'Not Found'
+            });
+    });
 
     afterAll(async () => {
         await app.close();
