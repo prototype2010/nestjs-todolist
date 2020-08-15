@@ -1,6 +1,6 @@
 import {EntityRepository, Repository} from "typeorm";
 import {Task} from "./task.entity";
-import {CreateTaskDto} from "./dto/CreateTaskDto";
+import {CreateTaskDTO} from "./dto/CreateTaskDTO";
 import {TaskStatus} from "./task-status-enum";
 import {GetTaskFilterDto} from "./dto/GetTaskFilterDto";
 import {User} from "../auth/user.entity";
@@ -32,7 +32,7 @@ export class TaskRepository extends Repository<Task> {
     }
 
     async createTask(
-        {description,title} : CreateTaskDto,
+        {description,title} : CreateTaskDTO,
         user: User)
         : Promise<Task>
     {
