@@ -6,7 +6,6 @@ import {typeOrmConfig} from "../../config/typeorm.config";
 import * as faker from 'faker';
 import {AuthModule} from "../../auth/auth.module";
 import {ProjectsModule} from "../projects.module";
-import {prependListener} from "cluster";
 
 describe('Create project', () => {
     let app: INestApplication;
