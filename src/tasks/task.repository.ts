@@ -4,6 +4,7 @@ import { CreateTaskDTO } from './dto/CreateTaskDTO';
 import { TaskStatus } from './task-status-enum';
 import { User } from '../auth/user.entity';
 import {Project} from "../project/project.entity";
+import * as moment from "moment";
 
 @EntityRepository(Task)
 export class TaskRepository extends Repository<Task> {
@@ -44,6 +45,9 @@ export class TaskRepository extends Repository<Task> {
     task.status = TaskStatus.IN_PROGRESS;
     task.projectId = project.id;
 
+    if(deadline) {
+      task.deadline = moment(deadline).toDate();
+    }
 
     await task.save();
 

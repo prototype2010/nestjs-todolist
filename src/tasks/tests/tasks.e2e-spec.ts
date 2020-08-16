@@ -8,7 +8,7 @@ import * as faker from "faker";
 import * as request from "supertest";
 import {TasksModule} from "../tasks.module";
 
-describe('Update project', () => {
+describe('Create tasks inside project', () => {
     let app: INestApplication;
     let token;
     let projectName;
@@ -70,6 +70,62 @@ describe('Update project', () => {
        expect(deadline).toBe(null);
        expect(id).toBeTruthy();
 
+    });
+
+    it(`Successfully create task with deadline`, async () => {
+
+        const taskDeadline = new Date().toISOString();
+
+       const response = await request(app.getHttpServer())
+            .post(`/tasks/projects/${projectId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ title: taskName, deadline: taskDeadline })
+            .expect(201);
+
+       const {title, status, projectId: _projectId, deadline, id} = response.body;
+
+       expect(title).toBe(taskName);
+       expect(status).toBe('inProgress');
+       expect(_projectId).toBe(projectId);
+       expect(deadline).toBe(taskDeadline);
+       expect(id).toBeTruthy();
+    });
+
+    it(`Cannot create without title`, async () => {
+
+        const taskDeadline = new Date().toISOString();
+
+        await request(app.getHttpServer())
+            .post(`/tasks/projects/${projectId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ title: '', deadline: taskDeadline })
+            .expect(400, {
+                    statusCode: 400,
+                    message: [
+                        'title should not be empty',
+                        'title must be longer than or equal to 4 characters'
+                    ],
+                    error: 'Bad Request'
+                }
+            );
+    });
+
+    it(`Cannot create with empty body`, async () => {
+
+        await request(app.getHttpServer())
+            .post(`/tasks/projects/${projectId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({})
+            .expect(400,  {
+                    statusCode: 400,
+                    message: [
+                        'title should not be empty',
+                        'title must be shorter than or equal to 30 characters',
+                        'title must be longer than or equal to 4 characters'
+                    ],
+                    error: 'Bad Request'
+                }
+            );
     });
 
     afterAll(async () => {
