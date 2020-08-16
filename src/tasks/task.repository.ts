@@ -2,37 +2,25 @@ import { EntityRepository, Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { CreateTaskDTO } from './dto/CreateTaskDTO';
 import { TaskStatus } from './task-status-enum';
-import { User } from '../auth/user.entity';
 import {Project} from "../project/project.entity";
 import * as moment from "moment";
+import {NotFoundException} from "@nestjs/common";
 
 @EntityRepository(Task)
 export class TaskRepository extends Repository<Task> {
-  // async getTasksByProjectId(
-  //     projectId: number,
-  //
-  //   user: User,
-  // ): Promise<Array<Task>> {
-  //
-  //   const query = this.createQueryBuilder('project');
-  //
-  //
-  //
-  //   // if (status) {
-  //   //   query.andWhere('task.status = :status', { status });
-  //   // }
-  //   //
-  //   // if (search) {
-  //   //   query.andWhere(
-  //   //     '(task.title LIKE :search OR task.description LIKE :search)',
-  //   //     { search: `%${search}%` },
-  //   //   );
-  //   // }
-  //
-  //   const tasks = await query.getMany();
-  //
-  //   return tasks;
-  // }
+  async getTask(
+      taskId: number,
+      projectId: number,
+  ): Promise<Task> {
+
+    const task = await this.findOne({ where : { id : taskId, projectId }});
+
+    if(!task) {
+      throw new NotFoundException(`Task not found`);
+    }
+
+    return task;
+  }
 
   async createTask(
     { title, deadline }: CreateTaskDTO,

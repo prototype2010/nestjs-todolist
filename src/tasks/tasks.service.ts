@@ -21,23 +21,29 @@ export class TasksService {
   //   return this.taskRepository.getTasksByProjectId(projectId, user);
   // }
   //
-  // async getTaskById(taskId: number, projectId, user: User): Promise<Task> {
-  //   const found = await this.taskRepository.findOne({
-  //     where: { taskId, userId: user.id },
-  //   });
-  //
-  //   if (!found) {
-  //     throw new NotFoundException(`Task not found`);
-  //   }
-  //
-  //   return found;
-  // }
+  async getTask(taskId: number, projectId: number, user: User): Promise<Task> {
+    /* verify this project belongs to the user */
+
+    try {
+
+      await this.projectRepository.getProject(projectId, user);
+
+      const task = this.taskRepository.getTask(taskId, projectId);
+
+      return task;
+    } catch (e) {
+      console.log("#########", e);
+    }
+
+  }
 
   async createTask(createTaskDto: CreateTaskDTO, projectId: number, user: User): Promise<Task> {
-
+    /* verify this project belongs to the user */
     const project:Project = await this.projectRepository.getProject(projectId, user);
 
-    return this.taskRepository.createTask(createTaskDto,project);
+    const task = await this.taskRepository.createTask(createTaskDto,project);
+
+    return task
   }
 
   // async deleteTaskById(taskId: number, user: User): Promise<void> {

@@ -43,28 +43,18 @@ export class TasksController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @GetUser() user: User,
   ): Promise<Task> {
-
-    try {
       return this.tasksService.createTask(createTaskDto, projectId, user);
-    } catch (e) {
-      console.log(e)
-
-      // @ts-ignore
-      return  JSON.stringify(e)
-    }
-
-
   }
-  //
-  // @Get('/:taskId/projects/:projectId')
-  // getTaskById(
-  //     @Param('taskId', ParseIntPipe) taskId: number,
-  //     @Param('projectId', ParseIntPipe) projectId: number,
-  //   @GetUser() user: User,
-  // ): Promise<Task> {
-  //   return this.tasksService.getTaskById(taskId,projectId, user);
-  // }
-  //
+
+  @Get('/:taskId/projects/:projectId')
+  getTaskById(
+      @Param('taskId', ParseIntPipe) taskId: number,
+      @Param('projectId', ParseIntPipe) projectId: number,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    return this.tasksService.getTask(taskId,projectId, user);
+  }
+
   // @Delete('/tasks/:id/projects/:projectId')
   // deleteTaskById(
   //   @Param('id', ParseIntPipe) taskId: number,
