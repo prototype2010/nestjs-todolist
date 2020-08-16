@@ -39,11 +39,21 @@ export class TasksController {
   @Post('/projects/:projectId')
   @UsePipes(ValidationPipe)
   createTask(
-    @Body('deadline', TimeFormatValidation) createTaskDto: CreateTaskDTO,
+    @Body() createTaskDto: CreateTaskDTO,
     @Param('projectId', ParseIntPipe) projectId: number,
     @GetUser() user: User,
   ): Promise<Task> {
-    return this.tasksService.createTask(createTaskDto, projectId, user);
+
+    try {
+      return this.tasksService.createTask(createTaskDto, projectId, user);
+    } catch (e) {
+      console.log(e)
+
+      // @ts-ignore
+      return  JSON.stringify(e)
+    }
+
+
   }
   //
   // @Get('/:taskId/projects/:projectId')

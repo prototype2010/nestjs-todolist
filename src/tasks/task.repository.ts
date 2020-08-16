@@ -36,7 +36,6 @@ export class TaskRepository extends Repository<Task> {
   async createTask(
     { title, deadline }: CreateTaskDTO,
     project: Project,
-    user: User,
   ): Promise<Task> {
 
     const task = new Task();

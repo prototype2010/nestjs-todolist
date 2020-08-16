@@ -6,18 +6,21 @@ import {AuthModule} from "../../auth/auth.module";
 import {ProjectsModule} from "../../project/projects.module";
 import * as faker from "faker";
 import * as request from "supertest";
+import {TasksModule} from "../tasks.module";
 
 describe('Update project', () => {
     let app: INestApplication;
     let token;
     let projectName;
     let projectId;
+    let taskName;
 
     beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
             imports: [
                 TypeOrmModule.forRoot(typeOrmConfig),
                 AuthModule,
+                TasksModule,
                 ProjectsModule,
             ],
         }).compile();
@@ -28,6 +31,7 @@ describe('Update project', () => {
 
     beforeEach(async () => {
         projectName = faker.company.companyName();
+        taskName = faker.commerce.product();
         const email = faker.internet.email();
         const password = faker.internet.password();
 
@@ -51,16 +55,21 @@ describe('Update project', () => {
     });
 
     it(`Successfully create task inside a project`, async () => {
-        const newProjectName = faker.company.companyName();
 
-        const project = await request(app.getHttpServer())
-            .put(`/projects/${projectId}`)
+       const response = await request(app.getHttpServer())
+            .post(`/tasks/projects/${projectId}`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ name: newProjectName })
-            .expect(200);
+            .send({ title: taskName })
+            .expect(201);
 
-        expect(project.body.name).toBe(newProjectName);
-        expect(project.body.id).toBe(projectId);
+       const {title, status, projectId: _projectId, deadline, id} = response.body;
+
+       expect(title).toBe(taskName);
+       expect(status).toBe('inProgress');
+       expect(_projectId).toBe(projectId);
+       expect(deadline).toBe(null);
+       expect(id).toBeTruthy();
+
     });
 
     afterAll(async () => {

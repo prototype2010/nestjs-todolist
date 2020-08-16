@@ -37,7 +37,7 @@ export class TasksService {
 
     const project:Project = await this.projectRepository.getProject(projectId, user);
 
-    return this.taskRepository.createTask(createTaskDto,project,user);
+    return this.taskRepository.createTask(createTaskDto,project);
   }
 
   // async deleteTaskById(taskId: number, user: User): Promise<void> {
