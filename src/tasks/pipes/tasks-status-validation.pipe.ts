@@ -7,7 +7,6 @@ import { TaskStatus } from '../task-status-enum';
 
 export class TasksStatusValidationPipe implements PipeTransform {
   private readonly statuses = [
-    TaskStatus.OPEN,
     TaskStatus.DONE,
     TaskStatus.IN_PROGRESS,
   ];

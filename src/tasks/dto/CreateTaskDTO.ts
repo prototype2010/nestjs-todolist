@@ -10,5 +10,4 @@ export class CreateTaskDTO {
   @IsNotEmpty()
   @MinLength(6)
   deadline: string
-
 }
