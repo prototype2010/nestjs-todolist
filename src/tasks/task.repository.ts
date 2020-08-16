@@ -2,29 +2,31 @@ import { EntityRepository, Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { CreateTaskDTO } from './dto/CreateTaskDTO';
 import { TaskStatus } from './task-status-enum';
-import { GetTaskFilterDto } from './dto/GetTaskFilterDto';
 import { User } from '../auth/user.entity';
+import {Project} from "../project/project.entity";
 
 @EntityRepository(Task)
 export class TaskRepository extends Repository<Task> {
-  async getTasks(
-    { search, status }: GetTaskFilterDto,
+  async getTasksByProjectId(
+      projectId: number,
+
     user: User,
   ): Promise<Array<Task>> {
-    const query = this.createQueryBuilder('task');
 
-    query.where('task.userId = :userId', { userId: user.id });
+    const query = this.createQueryBuilder('project');
 
-    if (status) {
-      query.andWhere('task.status = :status', { status });
-    }
 
-    if (search) {
-      query.andWhere(
-        '(task.title LIKE :search OR task.description LIKE :search)',
-        { search: `%${search}%` },
-      );
-    }
+
+    // if (status) {
+    //   query.andWhere('task.status = :status', { status });
+    // }
+    //
+    // if (search) {
+    //   query.andWhere(
+    //     '(task.title LIKE :search OR task.description LIKE :search)',
+    //     { search: `%${search}%` },
+    //   );
+    // }
 
     const tasks = await query.getMany();
 
@@ -32,19 +34,19 @@ export class TaskRepository extends Repository<Task> {
   }
 
   async createTask(
-    { description, title }: CreateTaskDTO,
+    { title, deadline }: CreateTaskDTO,
+    project: Project,
     user: User,
   ): Promise<Task> {
+
     const task = new Task();
 
     task.title = title;
-    task.description = description;
     task.status = TaskStatus.OPEN;
-    // task.user = user;
-    //
-    // await task.save();
-    //
-    // delete task.user;
+    task.projectId = project.id;
+
+
+    await task.save();
 
     return task;
   }
