@@ -36,4 +36,25 @@ export class TaskRepository extends Repository<Task> {
 
     return task;
   }
+
+  async updateTask(taskId: number, projectId: number, createTaskDto: CreateTaskDTO): Promise<Task> {
+
+    const {deadline,status,title} = createTaskDto
+
+    const task = await this.getTask(taskId,projectId);
+
+    if(deadline) {
+      task.deadline = moment(deadline).toDate();
+    }
+
+    if(status) {
+      task.status = status as TaskStatus;
+    }
+
+    task.title = title;
+
+    await task.save();
+
+    return task;
+  }
 }

@@ -26,13 +26,6 @@ import { TimeFormatValidation } from './pipes/time-format-validation.pipe';
 @UseGuards(AuthGuard())
 export class TasksController {
   constructor(private tasksService: TasksService) {}
-  // @Get('/projects/:projectId')
-  // getAllTasks(
-  //     @Param('projectId', ParseIntPipe) projectId: number,
-  //     @GetUser() user: User,
-  // ) {
-  //   return this.tasksService.getTasksByProjectId(projectId, user);
-  // }
 
   @Post('/projects/:projectId')
   @UsePipes(ValidationPipe)
@@ -53,21 +46,22 @@ export class TasksController {
     return this.tasksService.getTask(taskId, projectId, user);
   }
 
-  @Delete('/:id/projects/:projectId')
+  @Delete('/:taskId/projects/:projectId')
   deleteTaskById(
-    @Param('id', ParseIntPipe) taskId: number,
+    @Param('taskId', ParseIntPipe) taskId: number,
     @Param('projectId', ParseIntPipe) projectId: number,
     @GetUser() user: User,
   ): Promise<Task> {
     return this.tasksService.deleteTask(taskId, projectId, user);
   }
-  //
-  // @Patch('/:id/status')
-  // updateTaskStatus(
-  //   @Param('id', ParseIntPipe) id: number,
-  //   @Body('status', TasksStatusValidationPipe) status: TaskStatus,
-  //   @GetUser() user: User,
-  // ): Promise<Task> {
-  //   return this.tasksService.updateTaskStatus(id, status, user);
-  // }
+
+  @Patch('/:taskId/projects/:projectId')
+  updateTaskStatus(
+    @Param('taskId', ParseIntPipe) taskId: number,
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Body() createTaskDto: CreateTaskDTO,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    return this.tasksService.updateTask(taskId, projectId, createTaskDto, user);
+  }
 }

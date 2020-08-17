@@ -57,28 +57,9 @@ export class TasksService {
     return task;
   }
 
-  // async deleteTaskById(taskId: number, user: User): Promise<void> {
-  //   const result = await this.taskRepository.delete({
-  //     id: taskId,
-  //     userId: user.id,
-  //   });
-  //
-  //   if (result.affected === 0) {
-  //     throw new NotFoundException(`Task not found`);
-  //   }
-  // }
-  //
-  // async updateTaskStatus(
-  //   id: number,
-  //   status: TaskStatus,
-  //   user: User,
-  // ): Promise<Task> {
-  //   const task: Task = await this.getTaskById(id, user);
-  //
-  //   task.status = status;
-  //
-  //   await task.save();
-  //
-  //   return task;
-  // }
+  async updateTask(taskId: number, projectId: number, createTaskDto: CreateTaskDTO, user: User):Promise<Task> {
+    await this.projectRepository.getProject(projectId, user);
+
+    return this.taskRepository.updateTask(taskId, projectId, createTaskDto);
+  }
 }
