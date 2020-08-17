@@ -39,7 +39,7 @@ export class TaskRepository extends Repository<Task> {
 
   async updateTask(taskId: number, projectId: number, createTaskDto: CreateTaskDTO): Promise<Task> {
 
-    const {deadline,status,title} = createTaskDto
+    const {deadline,status,title, order} = createTaskDto
 
     const task = await this.getTask(taskId,projectId);
 
@@ -49,6 +49,10 @@ export class TaskRepository extends Repository<Task> {
 
     if(status) {
       task.status = status as TaskStatus;
+    }
+
+    if(order) {
+      task.order = order;
     }
 
     task.title = title;

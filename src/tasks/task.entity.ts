@@ -22,7 +22,10 @@ export class Task extends BaseEntity {
   title: string;
 
   @Column({ nullable: true })
-  deadline: Date | null;
+  deadline: Date;
+
+  @Column({ nullable: true })
+  order: number;
 
   @Column()
   status: TaskStatus;

@@ -6,7 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post,
+  Post, Put,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -55,7 +55,8 @@ export class TasksController {
     return this.tasksService.deleteTask(taskId, projectId, user);
   }
 
-  @Patch('/:taskId/projects/:projectId')
+  @Put('/:taskId/projects/:projectId')
+  @UsePipes(ValidationPipe)
   updateTaskStatus(
     @Param('taskId', ParseIntPipe) taskId: number,
     @Param('projectId', ParseIntPipe) projectId: number,
