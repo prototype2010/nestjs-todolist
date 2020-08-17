@@ -23,18 +23,11 @@ export class TasksService {
   //
   async getTask(taskId: number, projectId: number, user: User): Promise<Task> {
     /* verify this project belongs to the user */
-
-    try {
-
       await this.projectRepository.getProject(projectId, user);
 
-      const task = this.taskRepository.getTask(taskId, projectId);
+      const task = await this.taskRepository.getTask(taskId, projectId);
 
       return task;
-    } catch (e) {
-      console.log("#########", e);
-    }
-
   }
 
   async createTask(createTaskDto: CreateTaskDTO, projectId: number, user: User): Promise<Task> {

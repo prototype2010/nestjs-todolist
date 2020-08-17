@@ -30,8 +30,8 @@ describe('Create tasks inside project', () => {
     });
 
     beforeEach(async () => {
-        projectName = faker.company.companyName();
-        taskName = faker.commerce.product();
+        projectName = faker.internet.password(10);
+        taskName = faker.internet.password(10);
         const email = faker.internet.email();
         const password = faker.internet.password();
 
@@ -137,8 +137,8 @@ describe('Create tasks inside project', () => {
             .expect(404,  {
                 statusCode: 404,
                 message: 'Project not found',
-                error: 'Not Found' }
-            );
+                error: 'Not Found'
+            });
     });
 
 
@@ -201,8 +201,8 @@ describe('Get project task', () => {
     });
 
     beforeEach(async () => {
-        projectName = faker.company.companyName();
-        taskName = faker.commerce.product();
+        projectName = faker.internet.password(10);
+        taskName = faker.internet.password(10);
         const email = faker.internet.email();
         const password = faker.internet.password();
 
@@ -228,6 +228,7 @@ describe('Get project task', () => {
             .post(`/tasks/projects/${projectId}`)
             .set('Authorization', `Bearer ${token}`)
             .send({ title: taskName })
+            .expect(201);
 
         taskId = task.body.id;
 
@@ -261,7 +262,7 @@ describe('Get project task', () => {
     it(`Not existing task returns 404`, async () => {
 
        await request(app.getHttpServer())
-            .get(`/tasks/${999999999}/projects/${projectId}`)
+            .get(`/tasks/999999999/projects/${projectId}`)
             .set('Authorization', `Bearer ${token}`)
             .expect(404, {
                 statusCode: 404,

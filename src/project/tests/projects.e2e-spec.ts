@@ -26,7 +26,7 @@ describe('Create project', () => {
   });
 
   beforeEach(async () => {
-    projectName = faker.company.companyName();
+    projectName = faker.internet.password(10);
     const email = faker.internet.email();
     const password = faker.internet.password();
 
@@ -100,7 +100,7 @@ describe('Update project', () => {
   });
 
   beforeEach(async () => {
-    projectName = faker.company.companyName();
+    projectName = faker.internet.password(10);
     const email = faker.internet.email();
     const password = faker.internet.password();
 
@@ -165,7 +165,7 @@ describe('Update project', () => {
 
   it(`Update other guy project`, async () => {
     ////////// OTHER GUY PROJECT ///////////////
-    const projectName2 = faker.company.companyName();
+    const projectName2 = faker.internet.password(10);
     const email2 = faker.internet.email();
     const password2 = faker.internet.password();
 
@@ -336,7 +336,7 @@ describe('Get project by id', () => {
   });
 
   beforeEach(async () => {
-    projectName = faker.company.companyName();
+    projectName = faker.internet.password(10);
     const email = faker.internet.email();
     const password = faker.internet.password();
 
@@ -434,7 +434,7 @@ describe('Get all projects', () => {
   });
 
   beforeEach(async () => {
-    projectName = faker.company.companyName();
+    projectName = faker.internet.password(10);
     const email = faker.internet.email();
     const password = faker.internet.password();
 
