@@ -6,15 +6,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './task.entity';
 import { TaskStatus } from './task-status-enum';
 import { User } from '../auth/user.entity';
-import {ProjectRepository} from "../project/project.repository";
-import {Project} from "../project/project.entity";
+import { ProjectRepository } from '../project/project.repository';
+import { Project } from '../project/project.entity';
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(TaskRepository)
     private taskRepository: TaskRepository,
     @InjectRepository(ProjectRepository)
-    private projectRepository: ProjectRepository
+    private projectRepository: ProjectRepository,
   ) {}
   //
   // async getTasksByProjectId(projectId: number, user: User) {
@@ -23,20 +23,38 @@ export class TasksService {
   //
   async getTask(taskId: number, projectId: number, user: User): Promise<Task> {
     /* verify this project belongs to the user */
-      await this.projectRepository.getProject(projectId, user);
+    await this.projectRepository.getProject(projectId, user);
 
-      const task = await this.taskRepository.getTask(taskId, projectId);
-
-      return task;
+    return this.taskRepository.getTask(taskId, projectId);
   }
 
-  async createTask(createTaskDto: CreateTaskDTO, projectId: number, user: User): Promise<Task> {
+  async createTask(
+    createTaskDto: CreateTaskDTO,
+    projectId: number,
+    user: User,
+  ): Promise<Task> {
     /* verify this project belongs to the user */
-    const project:Project = await this.projectRepository.getProject(projectId, user);
+    const project: Project = await this.projectRepository.getProject(
+      projectId,
+      user,
+    );
 
-    const task = await this.taskRepository.createTask(createTaskDto,project);
+    return await this.taskRepository.createTask(createTaskDto, project);
+  }
 
-    return task
+  async deleteTask(
+    taskId: number,
+    projectId: number,
+    user: User,
+  ): Promise<Task> {
+    /* verify this project belongs to the user */
+    await this.projectRepository.getProject(projectId, user);
+
+    const task = await this.taskRepository.getTask(taskId, projectId);
+
+    await task.remove();
+
+    return task;
   }
 
   // async deleteTaskById(taskId: number, user: User): Promise<void> {

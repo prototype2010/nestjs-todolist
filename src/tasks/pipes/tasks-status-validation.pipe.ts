@@ -6,10 +6,7 @@ import {
 import { TaskStatus } from '../task-status-enum';
 
 export class TasksStatusValidationPipe implements PipeTransform {
-  private readonly statuses = [
-    TaskStatus.DONE,
-    TaskStatus.IN_PROGRESS,
-  ];
+  private readonly statuses = [TaskStatus.DONE, TaskStatus.IN_PROGRESS];
 
   transform(value: any, metadata: ArgumentMetadata): any {
     if (!this.isValid(value)) {

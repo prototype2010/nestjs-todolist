@@ -1,13 +1,14 @@
 import {
   BaseEntity,
   Column,
-  Entity, IsNull,
+  Entity,
+  IsNull,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { TaskStatus } from './task-status-enum';
 import { Project } from '../project/project.entity';
-import {Optional} from "@nestjs/common";
+import { Optional } from '@nestjs/common';
 
 @Entity()
 export class Task extends BaseEntity {
@@ -20,8 +21,8 @@ export class Task extends BaseEntity {
   @Column()
   title: string;
 
-  @Column({nullable: true})
-  deadline: Date | null
+  @Column({ nullable: true })
+  deadline: Date | null;
 
   @Column()
   status: TaskStatus;

@@ -19,15 +19,13 @@ import { TaskStatus } from './task-status-enum';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../auth/user.entity';
-import {ProjectsService} from "../project/projects.service";
-import {TimeFormatValidation} from "./pipes/time-format-validation.pipe";
+import { ProjectsService } from '../project/projects.service';
+import { TimeFormatValidation } from './pipes/time-format-validation.pipe';
 
 @Controller('tasks')
 @UseGuards(AuthGuard())
 export class TasksController {
-  constructor(
-      private tasksService: TasksService,
-  ) {}
+  constructor(private tasksService: TasksService) {}
   // @Get('/projects/:projectId')
   // getAllTasks(
   //     @Param('projectId', ParseIntPipe) projectId: number,
@@ -43,25 +41,26 @@ export class TasksController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @GetUser() user: User,
   ): Promise<Task> {
-      return this.tasksService.createTask(createTaskDto, projectId, user);
+    return this.tasksService.createTask(createTaskDto, projectId, user);
   }
 
   @Get('/:taskId/projects/:projectId')
   getTaskById(
-      @Param('taskId', ParseIntPipe) taskId: number,
-      @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('taskId', ParseIntPipe) taskId: number,
+    @Param('projectId', ParseIntPipe) projectId: number,
     @GetUser() user: User,
   ): Promise<Task> {
-    return this.tasksService.getTask(taskId,projectId, user);
+    return this.tasksService.getTask(taskId, projectId, user);
   }
 
-  // @Delete('/tasks/:id/projects/:projectId')
-  // deleteTaskById(
-  //   @Param('id', ParseIntPipe) taskId: number,
-  //   @GetUser() user: User,
-  // ): Promise<void> {
-  //   return this.tasksService.deleteTaskById(taskId, user);
-  // }
+  @Delete('/:id/projects/:projectId')
+  deleteTaskById(
+    @Param('id', ParseIntPipe) taskId: number,
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    return this.tasksService.deleteTask(taskId, projectId, user);
+  }
   //
   // @Patch('/:id/status')
   // updateTaskStatus(

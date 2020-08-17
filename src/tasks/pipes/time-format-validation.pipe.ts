@@ -1,20 +1,22 @@
 import moment from 'moment';
 import {
-    ArgumentMetadata,
-    BadRequestException,
-    PipeTransform,
+  ArgumentMetadata,
+  BadRequestException,
+  PipeTransform,
 } from '@nestjs/common';
 
 export class TimeFormatValidation implements PipeTransform {
-    transform(value: any, metadata: ArgumentMetadata): any {
-        if (!this.isValid(value)) {
-            throw new BadRequestException(`Dealine has invalid date format/ use ISOString`);
-        }
-
-        return value;
+  transform(value: any, metadata: ArgumentMetadata): any {
+    if (!this.isValid(value)) {
+      throw new BadRequestException(
+        `Dealine has invalid date format/ use ISOString`,
+      );
     }
 
-    isValid(value: any): boolean{
-        return moment(value).isValid()
-    }
+    return value;
+  }
+
+  isValid(value: any): boolean {
+    return moment(value).isValid();
+  }
 }

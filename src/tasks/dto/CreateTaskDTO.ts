@@ -1,4 +1,4 @@
-import {IsNotEmpty,  IsOptional, MaxLength, MinLength} from 'class-validator';
+import { IsNotEmpty, IsOptional, MaxLength, MinLength } from 'class-validator';
 
 export class CreateTaskDTO {
   @MinLength(4)
@@ -9,5 +9,5 @@ export class CreateTaskDTO {
   @IsOptional()
   @IsNotEmpty()
   @MinLength(6)
-  deadline: string
+  deadline: string;
 }
