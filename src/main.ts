@@ -7,14 +7,18 @@ async function bootstrap() {
 
   const { port } = config.get('server');
 
-  app.enableCors();
-
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,HEAD,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
-    next();
+  app.enableCors({
+    origin: [
+      /^(.*)/,
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 200,
+    credentials: true,
+    allowedHeaders:
+        'Origin,X-Requested-With,Content-Type,Accept,Authorization,authorization,X-Forwarded-for',
   });
+
 
   await app.listen(port);
 }
