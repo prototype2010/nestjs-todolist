@@ -32,3 +32,10 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# configs
+config/*
+!/config/example.yaml
+
+#local_database
+task_management
