@@ -1,5 +1,12 @@
-import {IsIn, IsNotEmpty, IsNumber, IsOptional, MaxLength, MinLength, } from 'class-validator';
-import {TaskStatus} from "../task-status-enum";
+import {
+  IsIn,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+import { TaskStatus } from '../task-status-enum';
 
 export class CreateTaskDTO {
   @MinLength(4)
@@ -14,12 +21,11 @@ export class CreateTaskDTO {
 
   @IsOptional()
   @IsNotEmpty()
-  @IsIn([TaskStatus.IN_PROGRESS,TaskStatus.DONE])
-  status: string
+  @IsIn([TaskStatus.IN_PROGRESS, TaskStatus.DONE])
+  status: string;
 
   @IsOptional()
   @IsNotEmpty()
   @IsNumber()
-  order: number
-
+  order: number;
 }

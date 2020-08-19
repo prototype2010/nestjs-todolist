@@ -57,7 +57,12 @@ export class TasksService {
     return task;
   }
 
-  async updateTask(taskId: number, projectId: number, createTaskDto: CreateTaskDTO, user: User):Promise<Task> {
+  async updateTask(
+    taskId: number,
+    projectId: number,
+    createTaskDto: CreateTaskDTO,
+    user: User,
+  ): Promise<Task> {
     await this.projectRepository.getProject(projectId, user);
 
     return this.taskRepository.updateTask(taskId, projectId, createTaskDto);

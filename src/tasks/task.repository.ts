@@ -37,21 +37,24 @@ export class TaskRepository extends Repository<Task> {
     return task;
   }
 
-  async updateTask(taskId: number, projectId: number, createTaskDto: CreateTaskDTO): Promise<Task> {
+  async updateTask(
+    taskId: number,
+    projectId: number,
+    createTaskDto: CreateTaskDTO,
+  ): Promise<Task> {
+    const { deadline, status, title, order } = createTaskDto;
 
-    const {deadline,status,title, order} = createTaskDto
+    const task = await this.getTask(taskId, projectId);
 
-    const task = await this.getTask(taskId,projectId);
-
-    if(deadline) {
+    if (deadline) {
       task.deadline = moment(deadline).toDate();
     }
 
-    if(status) {
+    if (status) {
       task.status = status as TaskStatus;
     }
 
-    if(order) {
+    if (order) {
       task.order = order;
     }
 
