@@ -7,6 +7,8 @@ async function bootstrap() {
 
   const { port } = config.get('server');
 
+  app.enableCors();
+
   await app.listen(port);
 }
 bootstrap();
