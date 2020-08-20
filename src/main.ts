@@ -7,15 +7,7 @@ async function bootstrap() {
 
   const { port } = config.get('server');
 
-  app.enableCors({
-    origin: [/^(.*)/],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    preflightContinue: false,
-    optionsSuccessStatus: 200,
-    credentials: true,
-    allowedHeaders:
-      'Origin,X-Requested-With,Content-Type,Accept,Authorization,authorization,X-Forwarded-for',
-  });
+  app.enableCors();
 
   await app.listen(port);
 }
