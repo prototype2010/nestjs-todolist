@@ -48,6 +48,8 @@ export class ProjectRepository extends Repository<Project> {
     project.name = name;
     if(deadline) {
       project.deadline = deadline;
+    } else {
+      project.deadline = null;
     }
 
     await project.save();
