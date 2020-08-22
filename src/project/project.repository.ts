@@ -17,13 +17,17 @@ export class ProjectRepository extends Repository<Project> {
   }
 
   async createProject(
-    { name }: CreateProjectDTO,
+    { name,deadline }: CreateProjectDTO,
     user: User,
   ): Promise<Project> {
     const project = new Project();
 
     project.name = name;
     project.user = user;
+
+    if(deadline) {
+      project.deadline = deadline;
+    }
 
     await project.save();
 

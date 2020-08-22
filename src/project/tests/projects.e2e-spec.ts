@@ -52,6 +52,21 @@ describe('Create project', () => {
     expect(company.body.id).toBeTruthy();
   });
 
+  it(`Successful create project with deadline`, async () => {
+
+    const deadline = new Date().toISOString();
+    const company = await request(app.getHttpServer())
+      .post('/projects')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: projectName, deadline })
+      .expect(201);
+
+    expect(company.body.name).toBe(projectName);
+    expect(company.body.deadline).toBe(deadline);
+    expect(company.body.deadline).toBeTruthy();
+    expect(company.body.id).toBeTruthy();
+  });
+
   it(`Creating unathorized`, async () => {
     await request(app.getHttpServer())
       .post('/projects')
