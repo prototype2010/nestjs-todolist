@@ -34,12 +34,15 @@ export class ProjectRepository extends Repository<Project> {
 
   async updateProject(
     projectId: number,
-    { name }: CreateProjectDTO,
+    { name,deadline }: CreateProjectDTO,
     user: User,
   ) {
     const project = await this.getProjectByIdAndUser(projectId, user);
 
     project.name = name;
+    if(deadline) {
+      project.deadline = deadline;
+    }
 
     await project.save();
 

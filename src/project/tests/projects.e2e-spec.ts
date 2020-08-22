@@ -136,6 +136,22 @@ describe('Update project', () => {
     expect(project.body.id).toBe(projectId);
   });
 
+
+  it(`Successfully update project with deadline`, async () => {
+    const newProjectName = faker.company.companyName();
+    const deadline = new Date().toISOString();
+
+    const project = await request(app.getHttpServer())
+      .put(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: newProjectName, deadline })
+      .expect(200);
+
+    expect(project.body.name).toBe(newProjectName);
+    expect(project.body.id).toBe(projectId);
+    expect(project.body.deadline).toBe(deadline);
+  });
+
   it(`Update project with empty name`, async () => {
     await request(app.getHttpServer())
       .put(`/projects/${projectId}`)
