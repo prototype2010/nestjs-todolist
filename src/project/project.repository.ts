@@ -27,6 +27,8 @@ export class ProjectRepository extends Repository<Project> {
 
     if(deadline) {
       project.deadline = deadline;
+    } else {
+      project.deadline = null;
     }
 
     await project.save();
