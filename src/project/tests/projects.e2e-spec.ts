@@ -498,6 +498,7 @@ describe('Get all projects', () => {
     expect(companies.body.length).toBe(1);
     expect(companies.body[0].id).toBe(projectId);
     expect(companies.body[0].name).toBe(projectName);
+    expect(companies.body[0].tasks).toStrictEqual([]);
   });
 
   it(`Get all projects if they more than 1`, async () => {
