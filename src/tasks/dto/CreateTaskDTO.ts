@@ -17,7 +17,7 @@ export class CreateTaskDTO {
   @IsOptional()
   @IsNotEmpty()
   @MinLength(6)
-  deadline: string | null;
+  deadline: string;
 
   @IsOptional()
   @IsNotEmpty()
@@ -27,5 +27,5 @@ export class CreateTaskDTO {
   @IsOptional()
   @IsNotEmpty()
   @IsNumber()
-  order: number | null;
+  order: number;
 }
