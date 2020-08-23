@@ -27,5 +27,5 @@ export class CreateTaskDTO {
   @IsOptional()
   @IsNotEmpty()
   @IsNumber()
-  order: number;
+  order: number | null;
 }
