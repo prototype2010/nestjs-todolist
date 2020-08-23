@@ -17,7 +17,7 @@ export class CreateTaskDTO {
   @IsOptional()
   @IsNotEmpty()
   @MinLength(6)
-  deadline: string;
+  deadline: string | null;
 
   @IsOptional()
   @IsNotEmpty()
