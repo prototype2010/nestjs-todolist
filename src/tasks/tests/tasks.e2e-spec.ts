@@ -58,18 +58,18 @@ describe('Create tasks inside project', () => {
     const response = await request(app.getHttpServer())
       .post(`/tasks/projects/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: taskName })
+      .send({ name: taskName })
       .expect(201);
 
     const {
-      title,
+      name,
       status,
       projectId: _projectId,
       deadline,
       id,
     } = response.body;
 
-    expect(title).toBe(taskName);
+    expect(name).toBe(taskName);
     expect(status).toBe('inProgress');
     expect(_projectId).toBe(projectId);
     expect(deadline).toBe(null);
@@ -82,36 +82,36 @@ describe('Create tasks inside project', () => {
     const response = await request(app.getHttpServer())
       .post(`/tasks/projects/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: taskName, deadline: taskDeadline })
+      .send({ name: taskName, deadline: taskDeadline })
       .expect(201);
 
     const {
-      title,
+      name,
       status,
       projectId: _projectId,
       deadline,
       id,
     } = response.body;
 
-    expect(title).toBe(taskName);
+    expect(name).toBe(taskName);
     expect(status).toBe('inProgress');
     expect(_projectId).toBe(projectId);
     expect(deadline).toBe(taskDeadline);
     expect(id).toBeTruthy();
   });
 
-  it(`Cannot create without title`, async () => {
+  it(`Cannot create without name`, async () => {
     const taskDeadline = new Date().toISOString();
 
     await request(app.getHttpServer())
       .post(`/tasks/projects/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: '', deadline: taskDeadline })
+      .send({ name: '', deadline: taskDeadline })
       .expect(400, {
         statusCode: 400,
         message: [
-          'title should not be empty',
-          'title must be longer than or equal to 4 characters',
+          'name should not be empty',
+          'name must be longer than or equal to 4 characters',
         ],
         error: 'Bad Request',
       });
@@ -125,9 +125,9 @@ describe('Create tasks inside project', () => {
       .expect(400, {
         statusCode: 400,
         message: [
-          'title should not be empty',
-          'title must be shorter than or equal to 30 characters',
-          'title must be longer than or equal to 4 characters',
+          'name should not be empty',
+          'name must be shorter than or equal to 30 characters',
+          'name must be longer than or equal to 4 characters',
         ],
         error: 'Bad Request',
       });
@@ -137,7 +137,7 @@ describe('Create tasks inside project', () => {
     await request(app.getHttpServer())
       .post(`/tasks/projects/${9999999}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: taskName })
+      .send({ name: taskName })
       .expect(404, {
         statusCode: 404,
         message: 'Project not found',
@@ -168,7 +168,7 @@ describe('Create tasks inside project', () => {
     await request(app.getHttpServer())
       .post(`/tasks/projects/${projectId}`)
       .set('Authorization', `Bearer ${otherGuyToken}`)
-      .send({ title: taskName })
+      .send({ name: taskName })
       .expect(404, {
         statusCode: 404,
         message: 'Project not found',
@@ -230,7 +230,7 @@ describe('Get project task', () => {
     const task = await request(app.getHttpServer())
       .post(`/tasks/projects/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: taskName })
+      .send({ name: taskName })
       .expect(201);
 
     taskId = task.body.id;
@@ -250,14 +250,14 @@ describe('Get project task', () => {
       .expect(200);
 
     const {
-      title,
+      name,
       status,
       projectId: _projectId,
       deadline,
       id,
     } = response.body;
 
-    expect(title).toBe(taskName);
+    expect(name).toBe(taskName);
     expect(status).toBe('inProgress');
     expect(_projectId).toBe(projectId);
     expect(deadline).toBe(null);
@@ -368,7 +368,7 @@ describe('Delete task', () => {
     const task = await request(app.getHttpServer())
       .post(`/tasks/projects/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: taskName })
+      .send({ name: taskName })
       .expect(201);
 
     taskId = task.body.id;
@@ -387,14 +387,14 @@ describe('Delete task', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
     const {
-      title,
+      name,
       status,
       projectId: _projectId,
       deadline,
       id,
     } = response.body;
 
-    expect(title).toBe(taskName);
+    expect(name).toBe(taskName);
     expect(status).toBe('inProgress');
     expect(_projectId).toBe(projectId);
     expect(deadline).toBe(null);
@@ -522,7 +522,7 @@ describe('Update task', () => {
     const task = await request(app.getHttpServer())
       .post(`/tasks/projects/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: taskName })
+      .send({ name: taskName })
       .expect(201);
 
     taskId = task.body.id;
@@ -533,7 +533,7 @@ describe('Update task', () => {
 
     request(app.getHttpServer())
       .put(`/tasks/${taskId}/projects/${projectId}`)
-      .send({ title: newTaskName })
+      .send({ name: newTaskName })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
   });
@@ -543,11 +543,11 @@ describe('Update task', () => {
 
     const updatedTask = await request(app.getHttpServer())
       .put(`/tasks/${taskId}/projects/${projectId}`)
-      .send({ title: newTaskName })
+      .send({ name: newTaskName })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(updatedTask.body.title).toBe(newTaskName);
+    expect(updatedTask.body.name).toBe(newTaskName);
   });
 
   it(`Task deadline can be updated`, async () => {
@@ -556,7 +556,7 @@ describe('Update task', () => {
 
     const updatedTask = await request(app.getHttpServer())
       .put(`/tasks/${taskId}/projects/${projectId}`)
-      .send({ title: newTaskName, deadline })
+      .send({ name: newTaskName, deadline })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
@@ -570,7 +570,7 @@ describe('Update task', () => {
 
     const updatedTask = await request(app.getHttpServer())
       .put(`/tasks/${taskId}/projects/${projectId}`)
-      .send({ title: newTaskName, deadline, status: taskStatus })
+      .send({ name: newTaskName, deadline, status: taskStatus })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
@@ -586,7 +586,7 @@ describe('Update task', () => {
     const updatedTask = await request(app.getHttpServer())
       .put(`/tasks/${taskId}/projects/${projectId}`)
       .send({
-        title: newTaskName,
+        name: newTaskName,
         deadline,
         status: taskStatus,
         order: newOrderValue,
@@ -606,7 +606,7 @@ describe('Update task', () => {
     const updatedTask = await request(app.getHttpServer())
       .put(`/tasks/${taskId}/projects/${projectId}`)
       .send({
-        title: newTaskName,
+        name: newTaskName,
         deadline,
         status: taskStatus,
         order: newOrderValue,
@@ -624,13 +624,13 @@ describe('Update task', () => {
 
     await request(app.getHttpServer())
       .put(`/tasks/${taskId}/projects/${projectId}`)
-      .send({ title: newTaskName, deadline, status: 'done' })
+      .send({ name: newTaskName, deadline, status: 'done' })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
     const updatedTask = await request(app.getHttpServer())
       .put(`/tasks/${taskId}/projects/${projectId}`)
-      .send({ title: newTaskName, deadline, status: taskStatus })
+      .send({ name: newTaskName, deadline, status: taskStatus })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
@@ -644,7 +644,7 @@ describe('Update task', () => {
 
     await request(app.getHttpServer())
       .put(`/tasks/${taskId}/projects/${projectId}`)
-      .send({ title: newTaskName, deadline, status: taskStatus })
+      .send({ name: newTaskName, deadline, status: taskStatus })
       .set('Authorization', `Bearer ${token}`)
       .expect(400, {
         statusCode: 400,
@@ -660,7 +660,7 @@ describe('Update task', () => {
 
     await request(app.getHttpServer())
       .put(`/tasks/${999999999}/projects/${projectId}`)
-      .send({ title: newTaskName })
+      .send({ name: newTaskName })
       .set('Authorization', `Bearer ${token}`)
       .expect(404, {
         statusCode: 404,
@@ -674,7 +674,7 @@ describe('Update task', () => {
 
     await request(app.getHttpServer())
       .put(`/tasks/${taskId}/projects/${999999999}`)
-      .send({ title: newTaskName })
+      .send({ name: newTaskName })
       .set('Authorization', `Bearer ${token}`)
       .expect(404, {
         statusCode: 404,

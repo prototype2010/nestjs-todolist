@@ -12,7 +12,7 @@ export class CreateTaskDTO {
   @MinLength(4)
   @MaxLength(30)
   @IsNotEmpty()
-  title: string;
+  name: string;
 
   @IsOptional()
   @IsNotEmpty()

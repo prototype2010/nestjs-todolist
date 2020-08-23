@@ -19,12 +19,12 @@ export class TaskRepository extends Repository<Task> {
   }
 
   async createTask(
-    { title, deadline }: CreateTaskDTO,
+    { name, deadline }: CreateTaskDTO,
     project: Project,
   ): Promise<Task> {
     const task = new Task();
 
-    task.title = title;
+    task.name = name;
     task.status = TaskStatus.IN_PROGRESS;
     task.projectId = project.id;
 
@@ -42,7 +42,7 @@ export class TaskRepository extends Repository<Task> {
     projectId: number,
     createTaskDto: CreateTaskDTO,
   ): Promise<Task> {
-    const { deadline, status, title, order } = createTaskDto;
+    const { deadline, status, name, order } = createTaskDto;
 
     const task = await this.getTask(taskId, projectId);
 
@@ -58,7 +58,7 @@ export class TaskRepository extends Repository<Task> {
       task.order = order;
     }
 
-    task.title = title;
+    task.name = name;
 
     await task.save();
 

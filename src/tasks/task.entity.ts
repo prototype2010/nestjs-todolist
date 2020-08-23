@@ -19,7 +19,7 @@ export class Task extends BaseEntity {
   projectId: number;
 
   @Column()
-  title: string;
+  name: string;
 
   @Column({ nullable: true })
   deadline: Date;
