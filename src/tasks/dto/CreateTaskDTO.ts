@@ -9,6 +9,10 @@ import {
 import { TaskStatus } from '../task-status-enum';
 
 export class CreateTaskDTO {
+  @IsOptional()
+  @IsNotEmpty()
+  id: number;
+
   @MinLength(4)
   @MaxLength(30)
   @IsNotEmpty()

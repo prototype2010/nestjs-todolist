@@ -3,7 +3,7 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
+  Param, ParseArrayPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -22,6 +22,9 @@ import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../auth/user.entity';
 import { ProjectsService } from '../project/projects.service';
 import { TimeFormatValidation } from './pipes/time-format-validation.pipe';
+import {PrioritizeTasksDTO} from "../project/dto/prioritize-tasks.dto";
+import {Transform} from "stream";
+import {pipeFromArray} from "rxjs/internal/util/pipe";
 
 @Controller('tasks')
 @UseGuards(AuthGuard())
@@ -36,6 +39,20 @@ export class TasksController {
     @GetUser() user: User,
   ): Promise<Task> {
     return this.tasksService.createTask(createTaskDto, projectId, user);
+  }
+
+
+  @Put('/projects/:projectId')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  applyTasksOrder(
+      @Body() priorityTasksDto: PrioritizeTasksDTO,
+      @Param('projectId', ParseIntPipe) projectId: number)  {
+
+    console.log(priorityTasksDto)
+    console.log(typeof priorityTasksDto)
+    console.log(typeof priorityTasksDto.tasks[0])
+
+    // return this.tasksService.createTask(createTaskDto, projectId, user);
   }
 
   @Get('/:taskId/projects/:projectId')
