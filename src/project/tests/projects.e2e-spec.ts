@@ -53,7 +53,6 @@ describe('Create project', () => {
   });
 
   it(`Successful create project with deadline`, async () => {
-
     const deadline = new Date().toISOString();
     const company = await request(app.getHttpServer())
       .post('/projects')
@@ -150,7 +149,6 @@ describe('Update project', () => {
     expect(project.body.name).toBe(newProjectName);
     expect(project.body.id).toBe(projectId);
   });
-
 
   it(`Successfully update project with deadline`, async () => {
     const newProjectName = faker.company.companyName();

@@ -20,7 +20,7 @@ export class Project extends BaseEntity {
   @Column()
   userId: number;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   deadline: string;
 
   @OneToMany(

@@ -3,7 +3,8 @@ import {
   Controller,
   Delete,
   Get,
-  Param, ParseArrayPipe,
+  Param,
+  ParseArrayPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -34,16 +35,18 @@ export class TasksController {
     return this.tasksService.createTask(createTaskDto, projectId, user);
   }
 
-
   @Put('/projects/:projectId')
   @UsePipes(new ValidationPipe({ transform: true }))
   applyTasksOrder(
-      @Body() priorityTasksDto: any,
-      @Param('projectId', ParseIntPipe) projectId: number,
-      @GetUser() user: User,
-      )  {
-
-    return this.tasksService.prioritizeTasks(projectId, priorityTasksDto.tasks, user);
+    @Body() priorityTasksDto: any,
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @GetUser() user: User,
+  ) {
+    return this.tasksService.prioritizeTasks(
+      projectId,
+      priorityTasksDto.tasks,
+      user,
+    );
   }
 
   @Get('/:taskId/projects/:projectId')

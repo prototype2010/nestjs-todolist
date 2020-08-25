@@ -7,14 +7,16 @@ import { NotFoundException } from '@nestjs/common';
 @EntityRepository(Project)
 export class ProjectRepository extends Repository<Project> {
   async getAllProjects(user: User): Promise<Array<Project>> {
-
-    const projects = await this.find({ where : {userId: user.id}, relations: ["tasks"]  });
+    const projects = await this.find({
+      where: { userId: user.id },
+      relations: ['tasks'],
+    });
 
     return projects;
   }
 
   async createProject(
-    { name,deadline }: CreateProjectDTO,
+    { name, deadline }: CreateProjectDTO,
     user: User,
   ): Promise<Project> {
     const project = new Project();
@@ -22,7 +24,7 @@ export class ProjectRepository extends Repository<Project> {
     project.name = name;
     project.user = user;
 
-    if(deadline) {
+    if (deadline) {
       project.deadline = deadline;
     } else {
       project.deadline = null;
@@ -37,13 +39,13 @@ export class ProjectRepository extends Repository<Project> {
 
   async updateProject(
     projectId: number,
-    { name,deadline }: CreateProjectDTO,
+    { name, deadline }: CreateProjectDTO,
     user: User,
   ) {
     const project = await this.getProjectByIdAndUser(projectId, user);
 
     project.name = name;
-    if(deadline) {
+    if (deadline) {
       project.deadline = deadline;
     } else {
       project.deadline = null;

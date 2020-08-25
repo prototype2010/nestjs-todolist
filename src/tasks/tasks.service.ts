@@ -68,23 +68,26 @@ export class TasksService {
     return this.taskRepository.updateTask(taskId, projectId, createTaskDto);
   }
 
-  async prioritizeTasks(projectId: number, tasks: CreateTaskDTO[], user): Promise<Array<Task>> {
-
+  async prioritizeTasks(
+    projectId: number,
+    tasks: CreateTaskDTO[],
+    user,
+  ): Promise<Array<Task>> {
     await this.projectRepository.getProject(projectId, user);
 
     for await (const task of tasks) {
-
-      const taskToUpdate = await this.taskRepository.getTask(task.id, projectId);
+      const taskToUpdate = await this.taskRepository.getTask(
+        task.id,
+        projectId,
+      );
 
       taskToUpdate.order = task.order;
 
-      await taskToUpdate.save()
-
+      await taskToUpdate.save();
     }
 
     const project = await this.projectRepository.getProject(projectId, user);
 
     return project.tasks;
-
   }
 }

@@ -61,13 +61,7 @@ describe('Create tasks inside project', () => {
       .send({ name: taskName })
       .expect(201);
 
-    const {
-      name,
-      status,
-      projectId: _projectId,
-      deadline,
-      id,
-    } = response.body;
+    const { name, status, projectId: _projectId, deadline, id } = response.body;
 
     expect(name).toBe(taskName);
     expect(status).toBe('inProgress');
@@ -85,13 +79,7 @@ describe('Create tasks inside project', () => {
       .send({ name: taskName, deadline: taskDeadline })
       .expect(201);
 
-    const {
-      name,
-      status,
-      projectId: _projectId,
-      deadline,
-      id,
-    } = response.body;
+    const { name, status, projectId: _projectId, deadline, id } = response.body;
 
     expect(name).toBe(taskName);
     expect(status).toBe('inProgress');
@@ -249,13 +237,7 @@ describe('Get project task', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    const {
-      name,
-      status,
-      projectId: _projectId,
-      deadline,
-      id,
-    } = response.body;
+    const { name, status, projectId: _projectId, deadline, id } = response.body;
 
     expect(name).toBe(taskName);
     expect(status).toBe('inProgress');
@@ -386,13 +368,7 @@ describe('Delete task', () => {
       .delete(`/tasks/${taskId}/projects/${projectId}`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    const {
-      name,
-      status,
-      projectId: _projectId,
-      deadline,
-      id,
-    } = response.body;
+    const { name, status, projectId: _projectId, deadline, id } = response.body;
 
     expect(name).toBe(taskName);
     expect(status).toBe('inProgress');

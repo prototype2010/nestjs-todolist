@@ -1,4 +1,11 @@
-import {IsDate, IsDateString, IsNotEmpty, IsOptional, MaxLength, MinLength} from 'class-validator';
+import {
+  IsDate,
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateProjectDTO {
   @IsNotEmpty()
