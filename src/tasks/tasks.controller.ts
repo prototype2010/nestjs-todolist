@@ -14,17 +14,10 @@ import {
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDTO } from './dto/CreateTaskDTO';
-import { TasksStatusValidationPipe } from './pipes/tasks-status-validation.pipe';
 import { Task } from './task.entity';
-import { TaskStatus } from './task-status-enum';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../auth/user.entity';
-import { ProjectsService } from '../project/projects.service';
-import { TimeFormatValidation } from './pipes/time-format-validation.pipe';
-import {PrioritizeTasksDTO} from "../project/dto/prioritize-tasks.dto";
-import {Transform} from "stream";
-import {pipeFromArray} from "rxjs/internal/util/pipe";
 
 @Controller('tasks')
 @UseGuards(AuthGuard())
@@ -45,14 +38,12 @@ export class TasksController {
   @Put('/projects/:projectId')
   @UsePipes(new ValidationPipe({ transform: true }))
   applyTasksOrder(
-      @Body() priorityTasksDto: PrioritizeTasksDTO,
-      @Param('projectId', ParseIntPipe) projectId: number)  {
+      @Body() priorityTasksDto: any,
+      @Param('projectId', ParseIntPipe) projectId: number,
+      @GetUser() user: User,
+      )  {
 
-    console.log(priorityTasksDto)
-    console.log(typeof priorityTasksDto)
-    console.log(typeof priorityTasksDto.tasks[0])
-
-    // return this.tasksService.createTask(createTaskDto, projectId, user);
+    return this.tasksService.prioritizeTasks(projectId, priorityTasksDto.tasks, user);
   }
 
   @Get('/:taskId/projects/:projectId')
