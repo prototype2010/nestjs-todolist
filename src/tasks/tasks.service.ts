@@ -88,8 +88,6 @@ export class TasksService {
 
     const project = await this.projectRepository.getProject(projectId, user);
 
-    return project
-        .tasks
-        .sort((a,b) => b.order - a.order);
+    return project.tasks.sort((a, b) => b.order - a.order);
   }
 }

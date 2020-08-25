@@ -26,19 +26,14 @@ export class Project extends BaseEntity {
   @OneToMany(
     type => Task,
     task => task.project,
-    { eager: true,
-      // onDelete: 'CASCADE'
-    },
+    { eager: true },
   )
   tasks: Array<Task>;
 
   @ManyToOne(
     type => User,
     user => user.projects,
-    { eager: false,
-      // onDelete: 'CASCADE'
-
-    },
+    { eager: false, cascade: true },
   )
   user: User;
 }

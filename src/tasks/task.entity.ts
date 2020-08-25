@@ -33,7 +33,7 @@ export class Task extends BaseEntity {
   @ManyToOne(
     type => Project,
     project => project.tasks,
-    { eager: false },
+    { eager: false, cascade: true, onDelete: 'CASCADE' },
   )
   project: Project;
 }

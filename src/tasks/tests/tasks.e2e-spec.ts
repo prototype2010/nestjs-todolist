@@ -70,6 +70,24 @@ describe('Create tasks inside project', () => {
     expect(id).toBeTruthy();
   });
 
+  it(`Successfully delete project with tasks`, async () => {
+    await request(app.getHttpServer())
+      .post(`/tasks/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: taskName });
+
+    await request(app.getHttpServer())
+      .post(`/tasks/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: taskName });
+
+    await request(app.getHttpServer())
+      .delete(`/projects/${projectId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send()
+      .expect(200);
+  });
+
   it(`Successfully create task with deadline`, async () => {
     const taskDeadline = new Date().toISOString();
 
